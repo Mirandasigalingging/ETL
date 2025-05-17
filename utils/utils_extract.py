@@ -55,4 +55,18 @@ def extract_page(page_num):
         return results
     except Exception as e:
         print(f"Error parsing page {page_num}: {e}")
-        return
+        return []
+
+def scrape_all_pages():
+    all_products = []
+    all_timestamps = []
+    for page_num in range(1, 51):
+        print(f"Extract halaman {page_num}")
+        results = extract_page(page_num)
+        if results:
+            for item in results:
+                all_products.append(item)
+                all_timestamps.append(item['timestamp'])
+        else:
+            print(f"Tidak ada data di halaman {page_num}")
+    return all_products, all_timestamps
