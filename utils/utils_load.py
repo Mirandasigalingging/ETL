@@ -1,20 +1,43 @@
-import gspread
-from gspread_dataframe import set_with_dataframe
+import pandas as pd
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
 
-def save_csv(df, filename):
+def save_csv(df, filename="products.csv"):
     try:
+        if df.empty:
+            print("Tidak ada data untuk disimpan ke CSV.")
+            return
         df.to_csv(filename, index=False)
-        print(f"Data disimpan ke file CSV: {filename}")
+        print(f"Data berhasil disimpan ke file: {filename}")
     except Exception as e:
-        print(f"Error menyimpan CSV: {e}")
+        print(f"❌ Gagal menyimpan CSV: {e}")
 
-def save_to_google_sheets(df, creds_json, sheet_url):
+def save_to_gsheet(df, spreadsheet_id, sheet_name="Sheet1", credentials_path="etl-fashion-data-e7a102c009e2.json"):
     try:
-        gc = gspread.service_account(filename=creds_json)
-        sh = gc.open_by_url(sheet_url)
-        worksheet = sh.get_worksheet(0)
-        worksheet.clear()
-        set_with_dataframe(worksheet, df)
-        print("Data berhasil disimpan ke Google Sheets")
+        if df.empty:
+            print("Tidak ada data untuk disimpan ke Google Sheets.")
+            return
+
+        creds = service_account.Credentials.from_service_account_file(
+            credentials_path,
+            scopes=["https://www.googleapis.com/auth/spreadsheets"]
+        )
+
+        service = build("sheets", "v4", credentials=creds)
+        sheet = service.spreadsheets()
+
+        # Convert DataFrame to list of lists
+        values = [df.columns.tolist()] + df.values.tolist()
+        body = {"values": values}
+
+        result = sheet.values().update(
+            spreadsheetId=spreadsheet_id,
+            range=f"{sheet_name}!A1",
+            valueInputOption="RAW",
+            body=body
+        ).execute()
+
+        updated = result.get("updatedCells", 0)
+        print(f"Berhasil menyimpan ke Google Sheets: {updated} sel diperbarui.")
     except Exception as e:
-        print(f"Error saat menyimpan ke Google Sheets: {e}")
+        print(f"Gagal menyimpan ke Google Sheets: {e}")
