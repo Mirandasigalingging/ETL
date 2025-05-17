@@ -22,7 +22,7 @@ def main():
     save_csv(df_clean, 'products.csv')
 
     # simpan ke Google Sheets
-    creds_path = 'tough-anagram-460012-t4-e5a2928ac1b3.json'
+    creds_path = 'etl-fashion-data-e7a102c009e2.json'
     sheet_url = 'https://docs.google.com/spreadsheets/d/1hTQoQgDOx0By5-C6G8hK3qofpUK1qfCYU__F1BW1DQc/edit?gid=0#gid=0' # ganti sesuai
     save_to_google_sheets(df_clean, creds_path, sheet_url)
 
