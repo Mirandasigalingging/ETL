@@ -1,30 +1,33 @@
-import pandas as pd
-from utils.utils_extract import extract_page
-from utils.utils_transform import transform_data
-from utils.utils_load import save_csv, save_to_google_sheets
+from utils.extract import scrape_all_pages
+from utils.transform import transform_data
+from utils.load import save_csv, save_to_gsheet
 
 def main():
-    all_products = []
-    for page in range(1, 51):
-        print(f"Extract halaman {page}")
-        products = extract_page(page)
-        print(f"Extracted page {page}, produk: {len(products)}")
-        all_products.extend(products)
+    print("Memulai proses ETL...")
 
-    df = pd.DataFrame(all_products)
-    print(f"Total produk: {len(df)}")
-    print("Contoh data:\n", df.head())
+    # Tahap Extract
+    products, timestamps = scrape_all_pages()
+    if not products:
+        print("Gagal: Tidak ada produk yang berhasil diambil dari website.")
+        return
+    print(f"Berhasil mengekstrak {len(products)} produk dari web.")
 
-    # proses transform
-    df_clean = transform_data(df)
+    # Tahap Transform
+    df = transform_data(products, timestamps)
+    if df.empty:
+        print("Data hasil transformasi kosong. Tidak menyimpan ke CSV atau Google Sheets.")
+        return
+    print(f"Transformasi selesai. Total baris bersih: {len(df)}")
 
-    # simpan CSV
-    save_csv(df_clean, 'products.csv')
+    # Tahap Load
+    print("Menyimpan ke products.csv...")
+    save_csv(df)
 
-    # simpan ke Google Sheets
-    creds_path = 'etl-fashion-data-e7a102c009e2.json'
-    sheet_url = 'https://docs.google.com/spreadsheets/d/1hTQoQgDOx0By5-C6G8hK3qofpUK1qfCYU__F1BW1DQc/edit?gid=0#gid=0' # ganti sesuai
-    save_to_google_sheets(df_clean, creds_path, sheet_url)
+    print("Menyimpan ke Google Sheets...")
+    spreadsheet_id = "https://docs.google.com/spreadsheets/d/1hTQoQgDOx0By5-C6G8hK3qofpUK1qfCYU__F1BW1DQc/edit?gid=0#gid=0"
+    save_to_gsheet(df, spreadsheet_id)
+
+    print("Proses ETL selesai tanpa error.")
 
 if __name__ == "__main__":
     main()
