@@ -1,7 +1,8 @@
-import pandas as pd
-from utils.extract import extract_page
-from utils.transform import transform_data
-from utils.load import save_csv, save_to_google_sheets
+from utils.utils_extract import extract_page
+from utils.utils_transform import transform_data
+from utils.utils_load import save_csv, save_to_google_sheets
+
+# kode main seperti biasa
 
 def main():
     all_products = []
