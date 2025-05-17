@@ -1,6 +1,6 @@
-from utils.extract import scrape_all_pages
-from utils.transform import transform_data
-from utils.load import save_csv, save_to_gsheet
+from utils.utils_extract import scrape_all_pages
+from utils.utils_transform import transform_data
+from utils.utils_load import save_csv, save_to_gsheet
 
 def main():
     print("Memulai proses ETL...")
