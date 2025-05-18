@@ -1,72 +1,57 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
+import logging
 
-def extract_page(page_num):
-    url = f"https://fashion-studio.dicoding.dev/?page={page_num}"
+logger = logging.getLogger(__name__)
+
+def fetch_page(url):
     try:
-        response = requests.get(url)
+        response = requests.get(url, timeout=10)
         response.raise_for_status()
+        return response.text
     except Exception as e:
-        print(f"Error fetching page {page_num}: {e}")
+        logger.error(f"Error fetching {url}: {e}")
+        return ""
+
+def scrape_products_from_page(url):
+    html = fetch_page(url)
+    if not html:
         return []
+    soup = BeautifulSoup(html, 'html.parser')
+    products = []
 
-    try:
-        soup = BeautifulSoup(response.text, 'html.parser')
-        products = soup.find_all('div', class_='collection-card')
-        results = []
+    for item in soup.select("div.collection-card"):
+        try:
+            title = item.select_one("h3.product-title").get_text(strip=True)
+            price = item.select_one(".price").get_text(strip=True)
+            rating_text = item.select_one("div.product-details p").get_text(strip=True)
+            colors_text = item.select("div.product-details p")[1].get_text(strip=True)
+            size_text = item.select("div.product-details p")[2].get_text(strip=True)
+            gender_text = item.select("div.product-details p")[3].get_text(strip=True)
+            image_url = item.select_one("img.collection-image")['src']
+            products.append({
+                "title": title,
+                "price": price,
+                "rating": rating_text,
+                "colors": colors_text,
+                "size": size_text,
+                "gender": gender_text,
+                "image_url": image_url,
+                "timestamp": datetime.utcnow().isoformat()
+            })
+        except Exception as e:
+            logger.warning(f"Error parsing product: {e}")
+            continue
+    return products
 
-        for item in products:
-            try:
-                img_tag = item.find('img', class_='collection-image')
-                img_url = img_tag['src'] if img_tag else None
-
-                title_tag = item.find('h3', class_='product-title')
-                title = title_tag.get_text(strip=True) if title_tag else None
-
-                price_tag = item.find('span', class_='price')
-                price = price_tag.get_text(strip=True) if price_tag else None
-
-                rating_tag = item.find('p', style=lambda s: s and 'Rating' in s)
-                rating_text = rating_tag.get_text(strip=True) if rating_tag else None
-
-                colors_tag = item.find('p', style=lambda s: s and 'Colors' in s)
-                colors = colors_tag.get_text(strip=True) if colors_tag else None
-
-                size_tag = item.find('p', style=lambda s: s and 'Size' in s)
-                size = size_tag.get_text(strip=True) if size_tag else None
-
-                gender_tag = item.find('p', style=lambda s: s and 'Gender' in s)
-                gender = gender_tag.get_text(strip=True) if gender_tag else None
-
-                results.append({
-                    'img_url': img_url,
-                    'title': title,
-                    'price': price,
-                    'rating': rating_text,
-                    'colors': colors,
-                    'size': size,
-                    'gender': gender,
-                    'timestamp': datetime.now().isoformat()
-                })
-            except Exception as e:
-                print(f"Error parsing product: {e}")
-                continue
-        return results
-    except Exception as e:
-        print(f"Error parsing page {page_num}: {e}")
-        return []
-
-def scrape_all_pages():
+def fetch_products(pages=50):
+    base_url = "https://fashion-studio.dicoding.dev"
     all_products = []
-    all_timestamps = []
-    for page_num in range(1, 51):
-        print(f"Extract halaman {page_num}")
-        results = extract_page(page_num)
-        if results:
-            for item in results:
-                all_products.append(item)
-                all_timestamps.append(item['timestamp'])
-        else:
-            print(f"Tidak ada data di halaman {page_num}")
-    return all_products, all_timestamps
+
+    for page_num in range(1, pages + 1):
+        url = base_url if page_num == 1 else f"{base_url}/page{page_num}"
+        print(f"Scraping {url}")
+        page_data = scrape_products_from_page(url)
+        all_products.extend(page_data)
+    return all_products
