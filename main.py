@@ -1,25 +1,26 @@
-from utils.utils_extract import fetch_products
-from utils.utils_transform import process_data, clean_data
-from utils.utils_load import save_to_csv, save_to_google_sheets
+from utils.extract import extract_all
+from utils.transform import transform, clean_data
+from utils.load import load_to_csv
 
 def main():
-    raw_data = fetch_products(pages=50)
-    df = process_data(raw_data)
+    # Extract
+    raw = extract_all(pages=50)
 
-    # Cek nama-nama kolom
-    print("Kolom data:", df.columns.tolist())
+    # Transform
+    df = transform(raw)
 
-    # Pastikan kolom yang benar sudah sesuai
+    # Debug: cek kolom
+    print("Kolom data setelah transform:", df.columns.tolist())
+
+    # Bersihkan data
     df_bersih = clean_data(df)
 
-    # Cek data bersih
-    print("Data bersih:")
+    # Cek hasil bersih
+    print("Data bersih contoh:")
     print(df_bersih.head())
-    print("Jumlah baris:", len(df_bersih))
-    
-    # Simpan hasil bersih
-    save_to_csv(df_bersih)
-    save_to_google_sheets(df_bersih, json_keyfile='etl-fashion-data-ee489a18d56a.json')
+
+    # Save
+    load_to_csv(df_bersih, output_path="products.csv")
 
 if __name__ == "__main__":
     main()
