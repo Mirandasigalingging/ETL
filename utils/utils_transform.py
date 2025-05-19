@@ -6,7 +6,8 @@ EXCHANGE_RATE = 16000
 
 def transform(data: list[dict]) -> pd.DataFrame:
     df = pd.DataFrame(data)
-
+    # Hapus baris dengan 'Price Unavailable'
+    df = df[~df["price"].str.contains("Unavailable", na=False)]
     # Bersihkan harga: hapus simbol dan ubah ke IDR
     df["price"] = df["price"].str.replace("[$,]", "", regex=True).astype(float) * EXCHANGE_RATE
 
