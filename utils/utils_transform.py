@@ -5,7 +5,7 @@ import re
 def process_data(data):
     df = pd.DataFrame(data)
     
-    # Bersihkan kolom 'price' dan tangani nilai tidak valid
+    # Bersihkan kolom 'price'
     def clean_price(x):
         if pd.isnull(x) or x == 'Price Unavailable':
             return 0
@@ -13,7 +13,6 @@ def process_data(data):
             return int(float(re.sub(r'[$,]', '', x)) * 16000)
         except:
             return 0
-    
     df['price'] = df['price'].apply(clean_price)
     
     # Bersihkan kolom 'rating'
@@ -22,7 +21,6 @@ def process_data(data):
             return 0
         match = re.search(r"([\d.]+)", x)
         return float(match.group(1)) if match else 0
-    
     df['rating'] = df['rating'].apply(clean_rating)
     
     # Bersihkan kolom 'colors'
@@ -31,7 +29,6 @@ def process_data(data):
             return 0
         match = re.search(r"(\d+)", x)
         return int(match.group(1)) if match else 0
-    
     df['colors'] = df['colors'].apply(clean_colors)
     
     # Bersihkan 'size'
@@ -42,16 +39,13 @@ def process_data(data):
     
     return df
 
-# Tambahkan fungsi untuk membersihkan data invalid dan duplikat
 def clean_data(df):
-    import numpy as np
-    
-    # Hapus duplikat
+    # Bersihkan data invalid dan duplikat
     df = df.drop_duplicates()
 
-    # Ganti 'Unknown Product' dan 'Pants' (dengan nilai 0) jadi NaN
+    # Ganti 'Unknown Product' dan 'Pants' dengan nilai NaN
     df['product_name'] = df['product_name'].replace(['Unknown Product', 'Pants'], np.nan)
-    
+
     # Ganti nilai 0 di kolom penting menjadi NaN
     df['price'] = df['price'].replace(0, np.nan)
     df['rating'] = df['rating'].replace(0, np.nan)
@@ -59,12 +53,12 @@ def clean_data(df):
 
     # Hapus baris yang NaN di kolom penting
     df = df.dropna(subset=['product_name', 'price', 'rating', 'colors'])
-    
-    # Jika ingin validasi rating di 1-5
+
+    # Pastikan rating di antara 1-5
     df['rating'] = df['rating'].apply(lambda x: x if 1 <= x <= 5 else np.nan)
     df = df.dropna(subset=['rating'])
-    
-    # Hapus duplikat lagi jika perlu
+
+    # Hapus duplikat lagi
     df = df.drop_duplicates()
-    
+
     return df
