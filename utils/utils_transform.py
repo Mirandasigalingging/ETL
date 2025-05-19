@@ -43,7 +43,10 @@ def clean_data(df):
     # Bersihkan data invalid dan duplikat
     df = df.drop_duplicates()
 
-    # Ganti 'Unknown Product' dan 'Pants' dengan nilai NaN
+    # Ganti 'Unknown Product' dan 'Pants' di kolom yang sesuai
+    # Sesuaikan dengan nama kolom yang kamu cek nanti
+    # Contoh: 'title' atau 'product_name' tergantung hasil cek
+    # Ganti sesuai kolom yang benar setelah cek
     df['product_name'] = df['product_name'].replace(['Unknown Product', 'Pants'], np.nan)
 
     # Ganti nilai 0 di kolom penting menjadi NaN
@@ -54,11 +57,11 @@ def clean_data(df):
     # Hapus baris yang NaN di kolom penting
     df = df.dropna(subset=['product_name', 'price', 'rating', 'colors'])
 
-    # Pastikan rating di antara 1-5
+    # Validasi rating di antara 1-5
     df['rating'] = df['rating'].apply(lambda x: x if 1 <= x <= 5 else np.nan)
     df = df.dropna(subset=['rating'])
 
-    # Hapus duplikat lagi
+    # Duplikat lagi
     df = df.drop_duplicates()
 
     return df
