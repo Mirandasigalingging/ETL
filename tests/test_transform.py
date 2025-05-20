@@ -1,6 +1,6 @@
 import pytest
 import pandas as pd
-from utils.transform import transform_data
+from utils.utils_transform import transform as transform_data
 
 def test_transform_data():
     data = {
@@ -9,7 +9,9 @@ def test_transform_data():
         'colors': ['Red Blue', 'Green', None, 'Yellow Black'],
         'size': ['Size: M', 'Size: L', 'Size: S', None],
         'gender': ['Gender: Men', 'Gender: Women', None, 'Gender: Unisex'],
-        'title': ['Product 1', 'Product 2', 'Product 3', 'Product 4']
+        'title': ['Product 1', 'Product 2', 'Product 3', 'Product 4'],
+        'timestamp': ['2025-05-19T14:46:30.289406'] * 4,
+        'image_url': ['url'] * 4
     }
     df = pd.DataFrame(data)
     df_transformed = transform_data(df)
@@ -22,3 +24,29 @@ def test_transform_data():
     # Pastikan 'size' dan 'gender' bersih dari teks
     assert all(isinstance(s, str) for s in df_transformed['size'])
     assert all(isinstance(g, str) for g in df_transformed['gender'])
+
+def test_transform_filter_invalid_price_and_rating():
+    raw_data = [
+        {
+            "title": "Unknown Product",
+            "price": "Price Unavailable",
+            "rating": "Invalid Rating",
+            "colors": "3 Colors",
+            "size": "Size: M",
+            "gender": "Gender: Men",
+            "image_url": "http://x",
+            "timestamp": "2025-05-19T14:46:30.289406"
+        },
+        {
+            "title": "Pants",
+            "price": "$0.00",
+            "rating": "⭐ 0 / 5",
+            "colors": "0 Colors",
+            "size": "Size: L",
+            "gender": "Gender: Women",
+            "image_url": "http://x",
+            "timestamp": "2025-05-19T14:46:30.289406"
+        }
+    ]
+    df = transform_data(raw_data)
+    assert df.empty  # Semua harus terfilter keluar
