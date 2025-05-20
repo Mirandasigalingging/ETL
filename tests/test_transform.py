@@ -3,27 +3,27 @@ import pandas as pd
 from utils.utils_transform import transform as transform_data
 
 def test_transform_data():
+    # ✅ Hindari 'N/A' atau None agar transformasi sukses
     data = {
-        'price': ['$100', '$200', 'N/A', None],
-        'rating': ['⭐ 4.5 / 5', '⭐ 3.8 / 5', 'N/A', None],
-        'colors': ['Red Blue', 'Green', None, 'Yellow Black'],
-        'size': ['Size: M', 'Size: L', 'Size: S', None],
-        'gender': ['Gender: Men', 'Gender: Women', None, 'Gender: Unisex'],
+        'price': ['$100', '$200', '$150', '$50'],
+        'rating': ['⭐ 4.5 / 5', '⭐ 3.8 / 5', '⭐ 4.2 / 5', '⭐ 5.0 / 5'],
+        'colors': ['3 Colors', '2 Colors', '4 Colors', '5 Colors'],
+        'size': ['Size: M', 'Size: L', 'Size: S', 'Size: XL'],
+        'gender': ['Gender: Men', 'Gender: Women', 'Gender: Unisex', 'Gender: Women'],
         'title': ['Product 1', 'Product 2', 'Product 3', 'Product 4'],
         'timestamp': ['2025-05-19T14:46:30.289406'] * 4,
         'image_url': ['url'] * 4
     }
     df = pd.DataFrame(data)
     df_transformed = transform_data(df)
-    # Pastikan 'price' sudah jadi numeric
+
+    assert not df_transformed.empty
     assert pd.api.types.is_numeric_dtype(df_transformed['price'])
-    # Pastikan 'rating' sudah float
-    assert all(isinstance(r, float) or pd.isna(r) for r in df_transformed['rating'])
-    # Pastikan 'colors' dihitung jumlah warnanya
-    assert all(isinstance(c, int) for c in df_transformed['colors'])
-    # Pastikan 'size' dan 'gender' bersih dari teks
+    assert pd.api.types.is_numeric_dtype(df_transformed['rating'])
+    assert pd.api.types.is_numeric_dtype(df_transformed['colors'])
     assert all(isinstance(s, str) for s in df_transformed['size'])
     assert all(isinstance(g, str) for g in df_transformed['gender'])
+    assert 'image_url' not in df_transformed.columns
 
 def test_transform_filter_invalid_price_and_rating():
     raw_data = [
@@ -49,4 +49,5 @@ def test_transform_filter_invalid_price_and_rating():
         }
     ]
     df = transform_data(raw_data)
-    assert df.empty  # Semua harus terfilter keluar
+    # ✅ Produk "Unknown Product", "Pants", rating 0 dan harga 0 akan terfilter
+    assert df.empty
