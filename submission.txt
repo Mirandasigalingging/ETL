@@ -15,11 +15,11 @@ ETL/
 ├── google-sheets-api.json
 Penjelasan:
 
-tests/ berisi script testing untuk bagian extract, transform, load.
-utils/ berisi script fungsi untuk setiap tahap ETL.
-main.py adalah script utama yang menjalankan proses ETL secara keseluruhan.
-requirements.txt berisi daftar dependencies yang diperlukan.
-google-sheets-api.json adalah credential JSON untuk akses Google Sheets API.
+- tests/ berisi script testing untuk bagian extract, transform, load.
+- utils/ berisi script fungsi untuk setiap tahap ETL.
+- main.py adalah script utama yang menjalankan proses ETL secara keseluruhan.
+- requirements.txt berisi daftar dependencies yang diperlukan.
+- google-sheets-api.json adalah credential JSON untuk akses Google Sheets API.
 
 2. Membuat Repository GitHub dan Upload Berkas
 Buat repository baru di GitHub, misalnya: ETL.
