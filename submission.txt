@@ -1,0 +1,66 @@
+1. Membuat Struktur Folder dan Berkas
+Pertama, buat struktur folder dan berkas sesuai berikut:
+
+ETL/
+├── tests
+│   ├── test_extract.py
+│   ├── test_transform.py
+│   ├── test_load.py
+├── utils
+│   ├── extract.py
+│   ├── transform.py
+│   ├── load.py
+├── main.py
+├── requirements.txt
+├── google-sheets-api.json
+Penjelasan:
+
+tests/ berisi script testing untuk bagian extract, transform, load.
+utils/ berisi script fungsi untuk setiap tahap ETL.
+main.py adalah script utama yang menjalankan proses ETL secara keseluruhan.
+requirements.txt berisi daftar dependencies yang diperlukan.
+google-sheets-api.json adalah credential JSON untuk akses Google Sheets API.
+
+2. Membuat Repository GitHub dan Upload Berkas
+Buat repository baru di GitHub, misalnya: ETL.
+Clone repo ke lokal atau langsung dari Google Colab:
+
+!git clone https://github.com/username/ETL.git
+Setelah cloned, upload semua berkas dan folder ke repositori tersebut (bisa via GitHub Desktop, langsung dari command line, atau upload langsung di GitHub).
+
+Setelah semua file diupload, lakukan commit dan push:
+
+cd ETL
+git add .
+git commit -m "Initial commit ETL project structure"
+git push origin main
+
+3. Menjalankan ETL dari Google Colab
+Setelah repo tersedia di GitHub, kamu bisa menjalankan dari Google Colab dengan langkah berikut:
+
+
+# Clone repo ke Colab
+!git clone https://github.com/Mirandasigalingging/ETL.git /content/ETL
+
+# Pindah ke folder repo
+%cd /content/ETL
+
+# Install dependencies
+!pip install -r requirements.txt
+
+# Jalankan skrip utama
+!python main.py
+
+4. Menjalankan Test Coverage
+Untuk memastikan semua bagian berjalan dengan baik dan mendapatkan laporan coverage:
+
+# Run tests dengan coverage
+!coverage run -m pytest tests
+
+# Tampilkan laporan coverage
+!coverage report
+
+5. Link Google Sheets
+Setelah proses selesai, data hasil ETL bisa dikirim ke Google Sheets yang di-share melalui link berikut:
+
+https://docs.google.com/spreadsheets/d/1hTQoQgDOx0By5-C6G8hK3qofpUK1qfCYU__F1BW1DQc/edit?usp=sharing
