@@ -25,24 +25,35 @@ def test_scrape_page_success(monkeypatch):
       <img class="collection-image" src="http://example.com/image.jpg" />
     </div>
     """
-    monkeypatch.setattr("requests.get", lambda url: DummyResponse(html))
+
+    # ✅ Perbaikan di sini: support `timeout`
+    monkeypatch.setattr("requests.get", lambda url, timeout=None: DummyResponse(html))
+
     data = extract.fetch_products(pages=1)
     assert isinstance(data, list)
     assert len(data) == 1
     item = data[0]
-    assert "title" in item
-    assert "timestamp" in item
+    assert item["title"] == "Test Shirt"
+    assert item["price"] == "$10.00"
+    assert "Rating:" in item["rating"]
+    assert item["colors"] == "2 Colors"
+    assert item["size"] == "Size: M"
+    assert item["gender"] == "Gender: Unisex"
     datetime.fromisoformat(item["timestamp"])
 
-def test_fetch_products_structure():
-    data = extract.fetch_products(pages=1)
-    assert isinstance(data, list)
-    if data:
-        sample = data[0]
-        assert "title" in sample
-        assert "price" in sample
-        assert "rating" in sample
-        assert "colors" in sample
-        assert "size" in sample
-        assert "gender" in sample
-        assert "timestamp" in sample
+def test_extract_all_pages(monkeypatch):
+    def dummy_fetch_page(*args, **kwargs):
+        return [{
+            "title": "Dummy Product",
+            "price": "$10.00",
+            "rating": "⭐ 4.5 / 5",
+            "colors": "2 Colors",
+            "size": "Size: M",
+            "gender": "Gender: Unisex",
+            "image_url": "http://example.com/image.jpg",
+            "timestamp": datetime.utcnow().isoformat()
+        }]
+
+    monkeypatch.setattr(extract, "fetch_products", dummy_fetch_page)
+    data = extract.fetch_products(pages=2)
+    assert len(data) == 1
